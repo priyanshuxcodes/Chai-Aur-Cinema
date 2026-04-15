@@ -11,6 +11,7 @@ import pg from "pg";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -25,10 +26,7 @@ const pool = new pg.Pool({
   port: 5433,
   user: "postgres",
   password: "postgres",
-  database: "sql_class_2_db",
-  max: 20,
-  connectionTimeoutMillis: 0,
-  idleTimeoutMillis: 0,
+  database: "book_my_ticket",
 });
 
 const app = new express();
@@ -45,10 +43,10 @@ app.get("/seats", async (req, res) => {
 
 //book a seat give the seatId and your name
 
-app.put("/:id/:name", async (req, res) => {
+app.put("/:id/:name", authMiddleware ,async (req, res) => {
   try {
-    const id = req.params.id;
-    const name = req.params.name;
+    const id = req.user.id;
+    const name = req.user.name;
     // payment integration should be here
     // verify payment
     const conn = await pool.connect(); // pick a connection from the pool
